@@ -34,6 +34,7 @@ void main() {
 
   print(previousProcessingColumn);
 
+
   for(int i=0; i< previousProcessingColumn.length; i++){
     String firstChar = previousProcessingColumn[i].substring(0,1);
     String secondChar = previousProcessingColumn[i].substring(1);
@@ -63,5 +64,5 @@ String xorHex(String hex1, String hex2) {
   // Convert result back to hexadecimal
   String hexResult = result.toRadixString(16);
 
-  return hexResult.toUpperCase(); // Convert to uppercase for consistency
+  return hexResult.toUpperCase(); 
 }
