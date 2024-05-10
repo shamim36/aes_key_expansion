@@ -1,9 +1,13 @@
+import 'dart:io';
+
 import 'json_data.dart';
 
-void main() {
-  Data data = Data();
+var rConColumn = [];
+var round;
+Data data = Data();
 
-  var round = 3;
+void main() {
+  round = 03;
   var currentRoundHexKey = [
     ['47', '40', 'A3', '4C'],
     ['37', 'D4', '70', '9F'],
@@ -11,46 +15,73 @@ void main() {
     ['ED', 'A5', 'AE', 'BC'],
   ];
 
-  int keyRowCount = currentRoundHexKey.length;
-  int keyColumnCount = currentRoundHexKey[0].length;
+  int keyRowCount = currentRoundHexKey.length; //total row
+  int keyColumnCount = currentRoundHexKey[0].length; //total column
 
-  var newProcessingColumn = [];
-  var previousProcessingColumn = [];
+  var sBoxProcessingColumn = []; //currently working column
+  var afterSBoxProcessingColumn = []; //previous working column
+  var nxtRoundHexKey = []; //nextRound key or final result
 
-  var nxtRoundHexKey = [];
   int n = keyColumnCount - 1;
 
   for (int i = 0; i < keyRowCount;) {
     i++;
     if (i == keyColumnCount) {
       i = 0;
-      newProcessingColumn.add(currentRoundHexKey[i][n]);
+      sBoxProcessingColumn.add(currentRoundHexKey[i][n]);
       break;
     }
-    newProcessingColumn.add(currentRoundHexKey[i][n]);
+    sBoxProcessingColumn.add(currentRoundHexKey[i][n]);
   }
 
-  previousProcessingColumn = newProcessingColumn;
-
-  print(previousProcessingColumn);
-
-
-  for(int i=0; i< previousProcessingColumn.length; i++){
-    String firstChar = previousProcessingColumn[i].substring(0,1);
-    String secondChar = previousProcessingColumn[i].substring(1);
+  for (int i = 0; i < sBoxProcessingColumn.length; i++) {
+    String firstChar = sBoxProcessingColumn[i].substring(0, 1);
+    String secondChar = sBoxProcessingColumn[i].substring(1);
 
     int row = int.parse(firstChar, radix: 16);
     int colmn = int.parse(secondChar, radix: 16);
 
     String value = data.s_Box[row][colmn];
-    newProcessingColumn.add(value);
+    afterSBoxProcessingColumn.add(value);
   }
 
-  // String hex1 ='';
-  // String hex2 ='';
+  rConTableValue(round);
+  String? result;
 
-  // String result = xorHex(hex1, hex2);
-  // print('nextRoun: $result');
+  for (int i = 0; i < keyRowCount; i++) {
+    nxtRoundHexKey.add([]);
+  }
+
+  for (int i = 0; i < keyColumnCount; i++) {
+    if (i == 0) {
+      for (int j = 0; j < keyRowCount; j++) {
+        String result1 =
+            xorHex(afterSBoxProcessingColumn[j], currentRoundHexKey[j][i]);
+        result = xorHex(result1, rConColumn[j]);
+        nxtRoundHexKey[i].add(result);
+      }
+    } else {
+      for (int j = 0; j < keyRowCount; j++) {
+        result = xorHex(nxtRoundHexKey[i - 1][j], currentRoundHexKey[j][i]);
+        nxtRoundHexKey[i].add(result);
+      }
+    }
+  }
+  //Next Round Key Output
+  print('Round ${round + 1} AES Key : ');
+  for (int i = 0; i < keyRowCount; i++) {
+    for (int j = 0; j < keyColumnCount; j++) {
+      stdout.write('${nxtRoundHexKey[j][i]}  ');
+    }
+    print('');
+  }
+}
+
+void rConTableValue(int round) {
+  rConColumn.add(data.rCon_table[round]);
+  rConColumn.add('00');
+  rConColumn.add('00');
+  rConColumn.add('00');
 }
 
 String xorHex(String hex1, String hex2) {
@@ -64,5 +95,5 @@ String xorHex(String hex1, String hex2) {
   // Convert result back to hexadecimal
   String hexResult = result.toRadixString(16);
 
-  return hexResult.toUpperCase(); 
+  return hexResult.toUpperCase();
 }
