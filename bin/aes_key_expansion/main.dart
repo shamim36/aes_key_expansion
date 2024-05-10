@@ -15,15 +15,17 @@ void main() {
     ['ED', 'A5', 'AE', 'BC'],
   ];
 
-  int keyRowCount = currentRoundHexKey.length; //total row
-  int keyColumnCount = currentRoundHexKey[0].length; //total column
+  int keyRowCount = currentRoundHexKey.length; //total row in current Round key
+  int keyColumnCount =
+      currentRoundHexKey[0].length; //total column in current Round key
 
-  var sBoxProcessingColumn = []; //currently working column
-  var afterSBoxProcessingColumn = []; //previous working column
-  var nxtRoundHexKey = []; //nextRound key or final result
+  var sBoxProcessingColumn = []; //currently working column before Sbox
+  var afterSBoxProcessingColumn = []; //after processing sbox column
+  var nxtRoundHexKey = []; //next Round key or final result
 
   int n = keyColumnCount - 1;
 
+//loop for finding column before processing sbox
   for (int i = 0; i < keyRowCount;) {
     i++;
     if (i == keyColumnCount) {
@@ -34,6 +36,7 @@ void main() {
     sBoxProcessingColumn.add(currentRoundHexKey[i][n]);
   }
 
+//loop for finding column after processing sbox
   for (int i = 0; i < sBoxProcessingColumn.length; i++) {
     String firstChar = sBoxProcessingColumn[i].substring(0, 1);
     String secondChar = sBoxProcessingColumn[i].substring(1);
@@ -52,6 +55,7 @@ void main() {
     nxtRoundHexKey.add([]);
   }
 
+//loop for xor operation
   for (int i = 0; i < keyColumnCount; i++) {
     if (i == 0) {
       for (int j = 0; j < keyRowCount; j++) {
@@ -77,6 +81,7 @@ void main() {
   }
 }
 
+//function for complete rcon table
 void rConTableValue(int round) {
   rConColumn.add(data.rCon_table[round]);
   rConColumn.add('00');
@@ -84,16 +89,15 @@ void rConTableValue(int round) {
   rConColumn.add('00');
 }
 
+//function for Xor operation between two string
 String xorHex(String hex1, String hex2) {
-  // Convert hexadecimal strings to integers
   int int1 = int.parse(hex1, radix: 16);
   int int2 = int.parse(hex2, radix: 16);
 
-  // Perform XOR operation
   int result = int1 ^ int2;
 
-  // Convert result back to hexadecimal
-  String hexResult = result.toRadixString(16);
+  String hexResult =
+      result.toRadixString(16); // Convert result back to hexadecimal
 
   return hexResult.toUpperCase();
 }
